@@ -27,3 +27,22 @@ class ClubApp(PanelesMixin, tk.Tk):
         tk.Label(sub, text="🏆 Club Atlético GPJ • Pasión y Deporte • Fundado en 1925", font=("Helvetica", 8, "italic"), fg="#A0C4FF", bg="#002147").pack(anchor="w")
         if self.current_user:
             tk.Button(hdr, text="🔒 Cerrar Sesión", bg="#dc3545", fg="white", font=("Arial", 9, "bold"), command=self.show_login).pack(side="right", padx=5)
+
+    def show_login(self):
+        self.clear(); self.current_user = None; self.add_header("Acceso al Club GPJ")
+        box = tk.Frame(self, bg="#E6F0FA", bd=3, relief="ridge"); box.pack(pady=40, ipadx=25, ipady=15)
+        tk.Label(box, text="🔑 SISTEMA DE SOCIOS Y PAGOS", font=("Helvetica", 11, "bold"), bg="#E6F0FA", fg="#002147").grid(row=0, columnspan=2, pady=10)
+        tk.Label(box, text="👤 Usuario (DNI / admin):", font=("Arial", 9, "bold"), bg="#E6F0FA").grid(row=1, column=0, pady=5, sticky="e")
+        u_ent = tk.Entry(box, width=18, font=("Arial", 10)); u_ent.grid(row=1, column=1, pady=5, padx=5)
+        tk.Label(box, text="🔑 Contraseña:", font=("Arial", 9, "bold"), bg="#E6F0FA").grid(row=2, column=0, pady=5, sticky="e")
+        p_ent = tk.Entry(box, show="*", width=18, font=("Arial", 10)); p_ent.grid(row=2, column=1, pady=5, padx=5)
+        def login():
+            u, p = u_ent.get().strip(), p_ent.get().strip()
+            if u in users and users[u]["pass"] == p:
+                self.current_user = users[u]
+                self.show_admin() if users[u]["role"] == "admin" else self.show_socio()
+            else: messagebox.showerror("Error", "Usuario o contraseña incorrectos")
+        tk.Button(box, text="🚀 Ingresar", bg="#002147", fg="white", font=("Arial", 10, "bold"), command=login, width=14).grid(row=3, columnspan=2, pady=15)
+
+if __name__ == "__main__":
+    app = ClubApp(); app.mainloop()
