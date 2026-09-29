@@ -26,3 +26,19 @@ class PanelesMixin:
         tk.Label(f_add, text="Categoría:", font=("Arial", 9, "bold"), bg="#E6F0FA").grid(row=2, column=2, sticky="e")
         cats = ["SUB-13", "SUB-15", "SUB-17", "PRIMERA DIVISION", "ESCUELITA DE FUTBOL", "SOCIO RECREATIVO"]
         cat_cb = ttk.Combobox(f_add, values=cats, width=16, state="readonly"); cat_cb.grid(row=2, column=3); cat_cb.set("PRIMERA DIVISION")
+                def add_socio():
+            dni, nom, ape, eml = entries["DNI"].get().strip(), entries["Nombre"].get().strip(), entries["Apellido"].get().strip(), entries["Email"].get().strip()
+            if not (dni and nom and ape): return messagebox.showerror("Error", "DNI, Nombre y Apellido obligatorios")
+            s = {"dni": dni, "pass": "socio123", "role": "socio", "nombre": nom, "apellido": ape, "email": eml, "federado": fed_cb.get(), "categoria": cat_cb.get(), "estado": "🟢 Al día"}
+            socios.append(s); users[dni] = s
+            messagebox.showinfo("Éxito", f"¡Socio Registrado!\nEmail: {eml}\nContraseña genérica: socio123"); self.show_admin()
+        tk.Button(f_add, text="💾 Guardar Socio", bg="#002147", fg="white", font=("Arial", 9, "bold"), command=add_socio).grid(row=3, columnspan=4, pady=5)
+
+        t2 = tk.Frame(nb, bg="#E6F0FA"); nb.add(t2, text="💳 COBROS E HISTORIAL")
+        f_pago = tk.LabelFrame(t2, text=" 💵 Registrar Cobro de Cuota ", bg="#E6F0FA", font=("Helvetica", 9, "bold"), fg="#002147"); f_pago.pack(fill="x", padx=10, pady=6)
+        tk.Label(f_pago, text="👤 DNI Socio:", font=("Arial", 9, "bold"), bg="#E6F0FA").grid(row=0, column=0, padx=4, pady=3, sticky="e")
+        s_cb = ttk.Combobox(f_pago, values=[s["dni"] for s in socios], width=12, state="readonly"); s_cb.grid(row=0, column=1)
+        tk.Label(f_pago, text="📅 Mes/Año:", font=("Arial", 9, "bold"), bg="#E6F0FA").grid(row=0, column=2, padx=4, pady=3, sticky="e")
+        ma_e = tk.Entry(f_pago, width=10); ma_e.grid(row=0, column=3); ma_e.insert(0, "09/2026")
+        tk.Label(f_pago, text="💰 Monto ($):", font=("Arial", 9, "bold"), bg="#E6F0FA").grid(row=1, column=0, padx=4, pady=3, sticky="e")
+        m_e = tk.Entry(f_pago, width=12); m_e.grid(row=1, column=1); m_e.insert(0, "5000")
