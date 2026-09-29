@@ -42,3 +42,17 @@ class PanelesMixin:
         ma_e = tk.Entry(f_pago, width=10); ma_e.grid(row=0, column=3); ma_e.insert(0, "09/2026")
         tk.Label(f_pago, text="💰 Monto ($):", font=("Arial", 9, "bold"), bg="#E6F0FA").grid(row=1, column=0, padx=4, pady=3, sticky="e")
         m_e = tk.Entry(f_pago, width=12); m_e.grid(row=1, column=1); m_e.insert(0, "5000")
+        def reg_cobro():
+            d, ma, mo = s_cb.get(), ma_e.get().strip(), m_e.get().strip()
+            if not d or not ma or not mo: return messagebox.showerror("Error", "Campos incompletos")
+            soc = next((s for s in socios if s["dni"] == d), None); f_hoy = datetime.now().strftime("%d/%m/%Y")
+            pagos.append({"dni": d, "mes_anio": ma, "monto": f"${mo}", "cat": soc["categoria"] if soc else "-", "fecha": f_hoy})
+            if soc: soc["estado"] = "🟢 Al día"
+            messagebox.showinfo("Éxito", f"Cobro registrado el {f_hoy}."); self.show_admin()
+        tk.Button(f_pago, text="✅ Registrar Cobro", bg="#28a745", fg="white", font=("Arial", 9, "bold"), command=reg_cobro).grid(row=1, column=2, columnspan=2, pady=4)
+        tk.Label(t2, text="📋 Historial General de Pagos", font=("Helvetica", 10, "bold"), bg="#E6F0FA", fg="#002147").pack(pady=3)
+        tv_p = ttk.Treeview(t2, columns=("fecha", "dni", "ma", "monto", "cat"), show="headings", height=4)
+        for c, h in [("fecha","📅 Fecha Pago"), ("dni","🏷️ DNI Socio"), ("ma","🗓️ Mes/Año"), ("monto","💰 Monto"), ("cat","⚽ Categoría")]:
+            tv_p.heading(c, text=h); tv_p.column(c, width=110, anchor="center")
+        tv_p.pack(fill="x", padx=10)
+        for p in pagos: tv_p.insert("", "end", values=(p.get("fecha","24/09/2026"), p["dni"], p["mes_anio"], p["monto"], p["cat"]))
