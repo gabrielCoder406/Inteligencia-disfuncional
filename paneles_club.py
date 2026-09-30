@@ -56,3 +56,32 @@ class PanelesMixin:
             tv_p.heading(c, text=h); tv_p.column(c, width=110, anchor="center")
         tv_p.pack(fill="x", padx=10)
         for p in pagos: tv_p.insert("", "end", values=(p.get("fecha","24/09/2026"), p["dni"], p["mes_anio"], p["monto"], p["cat"]))
+
+    def show_socio(self):
+        self.clear(); u = self.current_user; self.add_header(f"Portal Socio: {u['nombre']} {u['apellido']}")
+        card = tk.Frame(self, bg="#E6F0FA", bd=3, relief="ridge"); card.pack(pady=8, padx=15, fill="both", expand=True)
+        f_info = tk.LabelFrame(card, text=" 👤 Datos Personales y Ficha ", bg="#E6F0FA", font=("Helvetica", 9, "bold"), fg="#002147"); f_info.pack(fill="x", padx=12, pady=6)
+        info_txt = f"🏷️ DNI: {u['dni']}  |  👤 Socio: {u['nombre']} {u['apellido']}  |  ✉️ Email: {u['email']}\n🏅 Federado: {u['federado']}  |  ⚽ Categoría: {u['categoria']}  |  📌 Estado: {u['estado']}"
+        tk.Label(f_info, text=info_txt, bg="#E6F0FA", font=("Arial", 9, "bold"), fg="#002147", justify="center").pack(pady=5)
+        f_pago = tk.LabelFrame(card, text=" 💳 Registrar Pago de Cuota ", bg="#E6F0FA", font=("Helvetica", 9, "bold"), fg="#002147"); f_pago.pack(fill="x", padx=12, pady=6)
+        tk.Label(f_pago, text=f"⚽ Categoría: {u['categoria']}  |  Desglose: Cuota Social y Actividades", bg="#E6F0FA", font=("Arial", 8, "bold"), fg="#0056b3").grid(row=0, columnspan=4, pady=2)
+        tk.Label(f_pago, text="🗓️ Mes/Año:", font=("Arial", 9, "bold"), bg="#E6F0FA").grid(row=1, column=0, padx=4, pady=4, sticky="e")
+        ma_e = tk.Entry(f_pago, width=10); ma_e.grid(row=1, column=1, padx=4, pady=4); ma_e.insert(0, "09/2026")
+        tk.Label(f_pago, text="💰 Monto ($):", font=("Arial", 9, "bold"), bg="#E6F0FA").grid(row=1, column=2, padx=4, pady=4, sticky="e")
+        m_e = tk.Entry(f_pago, width=10); m_e.grid(row=1, column=3, padx=4, pady=4); m_e.insert(0, "5000")
+        def pagar_cuota():
+            ma, mo = ma_e.get().strip(), m_e.get().strip()
+            if not ma or not mo: return messagebox.showerror("Error", "Indique Mes/Año y Monto")
+            f_hoy = datetime.now().strftime("%d/%m/%Y")
+            pagos.append({"dni": u["dni"], "mes_anio": ma, "monto": f"${mo}", "cat": u["categoria"], "fecha": f_hoy})
+            u["estado"] = "🟢 Al día"
+            messagebox.showinfo("Pago Exitoso", f"¡Pago registrado el {f_hoy} para {ma} por ${mo}!\nEstado: 🟢 Al día."); self.show_socio()
+        tk.Button(f_pago, text="💳 Confirmar y Pagar", bg="#28a745", fg="white", font=("Arial", 9, "bold"), command=pagar_cuota).grid(row=2, columnspan=4, pady=5)
+        
+        f_pagos = tk.LabelFrame(card, text=" 📋 Historial de Mis Pagos ", bg="#E6F0FA", font=("Helvetica", 9, "bold"), fg="#002147"); f_pagos.pack(fill="both", expand=True, padx=12, pady=6)
+        tv = ttk.Treeview(f_pagos, columns=("fecha", "ma", "monto", "cat"), show="headings", height=3)
+        for c, h in [("fecha","📅 Fecha Pago"), ("ma","🗓️ Mes/Año"), ("monto","💰 Monto Abonado"), ("cat","⚽ Categoría")]:
+            tv.heading(c, text=h); tv.column(c, width=130, anchor="center")
+        tv.pack(fill="both", expand=True, padx=5, pady=4)
+        for p in pagos:
+            if p["dni"] == u["dni"]: tv.insert("", "end", values=(p.get("fecha","24/09/2026"), p["mes_anio"], p["monto"], p["cat"]))
