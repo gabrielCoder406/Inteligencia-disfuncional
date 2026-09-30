@@ -26,7 +26,7 @@ class PanelesMixin:
         tk.Label(f_add, text="Categoría:", font=("Arial", 9, "bold"), bg="#E6F0FA").grid(row=2, column=2, sticky="e")
         cats = ["SUB-13", "SUB-15", "SUB-17", "PRIMERA DIVISION", "ESCUELITA DE FUTBOL", "SOCIO RECREATIVO"]
         cat_cb = ttk.Combobox(f_add, values=cats, width=16, state="readonly"); cat_cb.grid(row=2, column=3); cat_cb.set("PRIMERA DIVISION")
-                def add_socio():
+        def add_socio():
             dni, nom, ape, eml = entries["DNI"].get().strip(), entries["Nombre"].get().strip(), entries["Apellido"].get().strip(), entries["Email"].get().strip()
             if not (dni and nom and ape): return messagebox.showerror("Error", "DNI, Nombre y Apellido obligatorios")
             s = {"dni": dni, "pass": "socio123", "role": "socio", "nombre": nom, "apellido": ape, "email": eml, "federado": fed_cb.get(), "categoria": cat_cb.get(), "estado": "🟢 Al día"}
