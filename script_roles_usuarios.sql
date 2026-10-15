@@ -46,3 +46,10 @@ GRANT 'rol_lectura_club' TO 'consulta_gpj'@'localhost';
 
 -- Los roles quedan activos automáticamente al iniciar sesión
 SET DEFAULT ROLE ALL TO 'dba_gpj'@'localhost', 'app_gpj'@'localhost', 'consulta_gpj'@'localhost';
+
+
+
+--------------------------------------- VERIFICACIÓN -----------------------------------
+
+SHOW GRANTS FOR 'app_gpj'@'localhost' USING 'rol_app_club';
+SHOW GRANTS FOR 'consulta_gpj'@'localhost' USING 'rol_lectura_club';
