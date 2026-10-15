@@ -44,3 +44,22 @@ def ejecutar(sql, parametros=()):
     finally:
         con.close()
 
+def traducir_error(e):
+    """Convierte los códigos de error de MySQL en mensajes entendibles."""
+    if e.errno == 1062:   # clave duplicada (PK o UNIQUE)
+        if "correo" in e.msg:
+            return "Ya existe un registro con ese correo electrónico."
+        if "uq_pago_cuota" in e.msg:
+            return "Esa cuota ya tiene un pago registrado."
+        if "uq_cuota_periodo" in e.msg:
+            return "Ya existe una cuota para ese jugador en ese período."
+        return "Ya existe un registro con ese DNI / identificador."
+    if e.errno in (1216, 1452):   # clave foránea inexistente
+        return "Referencia inválida: la categoría, el jugador o la cuota no existen."
+    if e.errno == 3819:   # restricción CHECK violada
+        return f"Dato fuera de las reglas del sistema ({e.msg})."
+    if e.errno == 1644:   # SIGNAL lanzado por un trigger
+        return e.msg
+    if e.errno in (1142, 1143):  # permiso denegado por el rol
+        return "El usuario de la aplicación no tiene permiso para esa operación."
+    return f"Error de base de datos ({e.errno}): {e.msg}"
