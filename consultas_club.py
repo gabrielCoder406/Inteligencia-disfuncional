@@ -90,3 +90,43 @@ def listar_deudores():
         "SELECT dni, nombre_completo, categoria, meses_adeudados, periodos, deuda_total "
         "FROM v_deudores ORDER BY deuda_total DESC")
 
+
+
+# ------------------------------------------------ ALTAS ----------------------------------------------
+def alta_jugador(datos, id_administrador):
+    """Inserta un jugador nuevo. 'datos' ya viene validado por validaciones.validar_jugador.
+    La contraseña inicial del portal de socios es 'socio123' (se guarda hasheada)."""
+    ejecutar(
+        "INSERT INTO JUGADOR (dni, nombre, apellido, fecha_nacimiento, correo_electronico, "
+        "                     contrasena, es_federado, estado_deportivo, "
+        "                     id_categoria, id_administrador) "
+        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        (datos["dni"], datos["nombre"].strip(), datos["apellido"].strip(),
+         datos["fecha_nacimiento"], datos["correo"].strip().lower(), hash_clave("socio123"),
+         datos["es_federado"], datos["estado"], datos["id_categoria"], id_administrador))
+
+
+def generar_cuotas_mes(mes, anio, dia_vencimiento=10):
+    """Regla 2: genera la cuota del período para cada jugador habilitado
+    que todavía no la tenga. Devuelve la cantidad de cuotas creadas."""
+    filas, _ = ejecutar(
+        "INSERT INTO CUOTA (mes, anio, monto, fecha_vencimiento, dni_jugador) "
+        "SELECT %s, %s, c.monto_cuota, "
+        "       MAKEDATE(%s, 1) + INTERVAL (%s - 1) MONTH + INTERVAL (%s - 1) DAY, j.dni "
+        "FROM JUGADOR j JOIN CATEGORIA c ON c.id_categoria = j.id_categoria "
+        "WHERE j.estado_deportivo <> 'Baja' "
+        "  AND NOT EXISTS (SELECT 1 FROM CUOTA x "
+        "                  WHERE x.dni_jugador = j.dni AND x.mes = %s AND x.anio = %s)",
+        (mes, anio, anio, mes, dia_vencimiento, mes, anio))
+    return filas
+
+
+def registrar_pago(id_cuota, monto, medio_pago, id_administrador, comprobante=None):
+    """Regla 4: registra el pago de una cuota. El trigger trg_pago_ai_saldar_cuota la pasa
+    a 'Al día' y trg_pago_bi_validar rechaza montos insuficientes o cuotas ya saldadas.
+    Devuelve el id del pago generado."""
+    _, id_pago = ejecutar(
+        "INSERT INTO PAGO (fecha, monto, medio_pago, comprobante, id_cuota, id_administrador) "
+        "VALUES (CURDATE(), %s, %s, %s, %s, %s)",
+        (monto, medio_pago, comprobante or None, id_cuota, id_administrador))
+    return id_pago
