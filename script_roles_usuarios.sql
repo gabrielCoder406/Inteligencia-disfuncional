@@ -31,3 +31,18 @@ GRANT INSERT                 ON bd_club_deportivo.PAGO          TO 'rol_app_club
 GRANT SELECT ON bd_club_deportivo.v_padron_jugadores TO 'rol_lectura_club';
 GRANT SELECT ON bd_club_deportivo.v_deudores         TO 'rol_lectura_club';
 GRANT SELECT ON bd_club_deportivo.v_historial_pagos  TO 'rol_lectura_club';
+
+
+
+---------------------------- USUARIOS Y ASIGNACIÓN DE ROLES ------------------------------
+
+CREATE USER 'dba_gpj'@'localhost'      IDENTIFIED BY 'DbaGPJ#2026';
+CREATE USER 'app_gpj'@'localhost'      IDENTIFIED BY 'AppGPJ#2026';
+CREATE USER 'consulta_gpj'@'localhost' IDENTIFIED BY 'ConsultaGPJ#2026';
+
+GRANT 'rol_dba_club'     TO 'dba_gpj'@'localhost';
+GRANT 'rol_app_club'     TO 'app_gpj'@'localhost';
+GRANT 'rol_lectura_club' TO 'consulta_gpj'@'localhost';
+
+-- Los roles quedan activos automáticamente al iniciar sesión
+SET DEFAULT ROLE ALL TO 'dba_gpj'@'localhost', 'app_gpj'@'localhost', 'consulta_gpj'@'localhost';
